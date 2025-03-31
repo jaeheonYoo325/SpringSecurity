@@ -2,6 +2,8 @@ package com.springsecurity.edu.SpringSecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +24,17 @@ public class SecurityConfig {
     }
 
     @Bean
+    public RoleHierarchy roleHierarchy() {
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
+                "ROLE_B > ROLE_A");
+
+        return hierarchy;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
@@ -31,13 +44,23 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
 
-        http.
-                httpBasic(Customizer.withDefaults());
 //        http
-//                .formLogin((auth) -> auth.loginPage("/login")
-//                        .loginProcessingUrl("/loginProc")
-//                        .permitAll()
+//                .authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers("/login").permitAll()
+//                        .requestMatchers("/").hasAnyRole("A")
+//                        .requestMatchers("/manager").hasAnyRole("B")
+//                        .requestMatchers("/admin").hasAnyRole("C")
+//                        .anyRequest().authenticated()
 //                );
+
+//        http.
+//                httpBasic(Customizer.withDefaults());
+
+        http
+                .formLogin((auth) -> auth.loginPage("/login")
+                        .loginProcessingUrl("/loginProc")
+                        .permitAll()
+                );
 
 //        http
 //                .csrf((auth) -> auth.disable());
